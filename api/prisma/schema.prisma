@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String    // hashed password
+  role      Role      @default(USER) // admin (author) vs normal user
+  posts     Post[]    // authored posts
+  comments  Comment[] // user comments
+  likes     Like[]    // user liked posts or comments
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  published Boolean   @default(false) // draft vs published
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  comments  Comment[] // comments under this post
+  likes     Like[]    // likes on this post
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    Int?
+  likes     Like[]   // likes on this comment
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        Int       @id @default(autoincrement())
+  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int?
+  comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int?
+
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+}
+
+enum Role {
+  ADMIN  // can write/edit posts
+  USER   // normal commenter
+}

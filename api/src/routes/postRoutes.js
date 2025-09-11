@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { getPosts, createPost } from '../controllers/postController.js';
-import { authenticateJWT } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
 router.get('/', getPosts);
-router.post('/', authenticateJWT, createPost);
+router.post('/', protect, createPost);
 
 export default router;

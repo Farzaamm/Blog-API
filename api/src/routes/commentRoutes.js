@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { addComment } from '../controllers/commentController.js';
-import { authenticateJWT } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
-router.post('/', authenticateJWT, addComment);
+router.post('/', protect, addComment);
 
 export default router;

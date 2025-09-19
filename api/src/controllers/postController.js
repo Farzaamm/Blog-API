@@ -18,6 +18,7 @@ export const getPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: { published: true },
+      orderBy: { createdAt: 'desc' },
       include: {
         author: { select: safeUserSelect },
         comments: {
@@ -27,6 +28,25 @@ export const getPosts = async (req, res) => {
         },
       },
     });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllPostsForAdmin = async (req, res) => {
+  try {
+    if (!isAdmin(req.user)) {
+      return res.status(403).json({ message: 'Only admins can view all posts' });
+    }
+
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: { select: safeUserSelect },
+      },
+    });
+
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: error.message });

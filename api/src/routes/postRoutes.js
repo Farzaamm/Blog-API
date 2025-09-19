@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getPosts,
+  getAllPostsForAdmin,
   createPost,
   getPostById,
   updatePost,
@@ -13,6 +14,7 @@ import { protect } from '../middlewares/authMiddleware.js';
 const router = Router();
 
 router.get('/', getPosts);
+router.get('/admin', protect, getAllPostsForAdmin);
 router.get('/:id', getPostById);
 router.post('/', protect, createPost);
 router.put('/:id', protect, updatePost);

@@ -51,8 +51,8 @@ model Like {
   postId    Int?
   comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int?
-  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
 
   createdAt DateTime  @default(now())
 

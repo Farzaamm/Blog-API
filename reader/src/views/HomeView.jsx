@@ -61,7 +61,6 @@ export default function HomeView() {
             </article>
           );
         })}
-        )}
       </div>
     </main>
   );

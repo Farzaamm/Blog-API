@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../src/config/prisma.js';
 
-const email = 'admin@admin.com';
-const username = 'admin';
-const password = 'admin';
+const email = process.env.ADMIN_EMAIL;
+const username = process.env.ADMIN_USERNAME;
+const password = process.env.ADMIN_PASSWORD;
 
 const hashedPassword = await bcrypt.hash(password, 10);
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PostCard from "./components/PostCard.jsx";
 import { login, fetchCurrentUser, logout } from "./services/auth.js";
 import {
@@ -9,6 +9,8 @@ import {
   unpublishPost,
 } from "./services/posts.js";
 import "./App.css";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const INITIAL_FORM = { title: "", content: "" };
 const INITIAL_CREDENTIALS = { email: "", password: "" };
@@ -25,6 +27,36 @@ export default function App() {
   const [authError, setAuthError] = useState(null);
   const [credentials, setCredentials] = useState(INITIAL_CREDENTIALS);
   const [authLoading, setAuthLoading] = useState(false);
+
+  const quillModules = useMemo(
+    () => ({
+      toolbar: [
+        [{ header: [1, 2, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["blockquote", "code-block"],
+        ["link", "clean"],
+      ],
+    }),
+    []
+  );
+
+  const quillFormats = useMemo(
+    () => [
+      "header",
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "list",
+      "bullet",
+      "blockquote",
+      "code-block",
+      "link",
+      "clean",
+    ],
+    []
+  );
 
   const loadPosts = useCallback(async (signal) => {
     if (!user || user.role !== "ADMIN") {
@@ -83,6 +115,10 @@ export default function App() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleContentChange = (value) => {
+    setForm((prev) => ({ ...prev, content: value }));
+  };
+
   const handleCredentialChange = (event) => {
     const { name, value } = event.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
@@ -115,13 +151,17 @@ export default function App() {
   const handleCreatePost = async (event) => {
     event.preventDefault();
     setFormError(null);
-    if (!form.title.trim() || !form.content.trim()) {
+    const title = form.title.trim();
+    const content = form.content.trim();
+    const plainContent = content.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, "").trim();
+
+    if (!title || !plainContent) {
       setFormError("Title and content are required");
       return;
     }
     setIsSubmitting(true);
     try {
-      await createPost({ title: form.title.trim(), content: form.content.trim() });
+      await createPost({ title, content });
       setForm(INITIAL_FORM);
       await loadPosts();
     } catch (err) {
@@ -236,14 +276,14 @@ export default function App() {
           </div>
           <div>
             <label htmlFor="content">Content</label>
-            <textarea
+            <ReactQuill
               id="content"
-              name="content"
+              theme="snow"
               value={form.content}
-              onChange={handleInputChange}
+              onChange={handleContentChange}
               placeholder="Write your draft..."
-              rows={6}
-              required
+              modules={quillModules}
+              formats={quillFormats}
             />
           </div>
           {formError ? <p className="error">{formError}</p> : null}

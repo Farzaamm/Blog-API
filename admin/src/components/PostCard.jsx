@@ -1,7 +1,13 @@
+import { useMemo } from "react";
+import DOMPurify from "dompurify";
 import "../App.css";
 
 export default function PostCard({ post, onPublish, onUnpublish, onDelete, isProcessing }) {
   const published = post.published;
+  const sanitizedContent = useMemo(
+    () => DOMPurify.sanitize(post.content ?? ""),
+    [post.content]
+  );
 
   return (
     <article className="post-card">
@@ -11,7 +17,10 @@ export default function PostCard({ post, onPublish, onUnpublish, onDelete, isPro
           {published ? "Published" : "Draft"}
         </span>
       </header>
-      <p>{post.content}</p>
+      <div
+        className="post-body"
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      />
       <footer className="actions">
         {published ? (
           <button

@@ -34,6 +34,7 @@ export const addComment = async (req, res) => {
       },
       include: {
         user: { select: safeUserSelect },
+        likes: { select: { id: true, userId: true } },
       },
     });
 
@@ -81,7 +82,10 @@ export const getCommentsByPostId = async (req, res) => {
     }
     const comments = await prisma.comment.findMany({
       where: { postId },
-      include: { user: { select: safeUserSelect } },
+      include: {
+        user: { select: safeUserSelect },
+        likes: { select: { id: true, userId: true } },
+      },
       orderBy: { createdAt: 'asc' },
     });
     res.json(comments);

@@ -1,9 +1,12 @@
 import { Router } from 'express';
-import { likePost } from '../controllers/likeController.js';
+import { getLikesByCommentId, getLikesByPostId, likeItem, unlikeItem } from '../controllers/likeController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
-router.post('/', protect, likePost);
+router.get('/post/:postId', getLikesByPostId);
+router.get('/comment/:commentId', getLikesByCommentId);
+router.post('/', protect, likeItem);
+router.delete('/', protect, unlikeItem);
 
 export default router;
